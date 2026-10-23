@@ -259,7 +259,7 @@ strip_leading (char *string)
    newlines.  If NEWLINES_ONLY is non-zero, only trailing newlines
    are removed.  STRING should be terminated with a zero. */
 void
-strip_trailing (char *string, int len, int newlines_only)
+strip_trailing (char *string, size_t len, int newlines_only)
 {
   while (len >= 0)
     {

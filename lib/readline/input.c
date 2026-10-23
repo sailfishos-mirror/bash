@@ -958,18 +958,22 @@ rl_getc (FILE *stream)
       /* If the error that we received was EINTR, then try again,
 	 this is simply an interrupted system call to read ().  We allow
 	 the read to be interrupted if we caught SIGHUP, SIGTERM, or any
-	 of the other signals readline treats specially. If the
-	 application sets an event hook, call it for other signals.
+	 of the other signals readline treats specially. SIGHUP causes an
+	 immediate error/EOF return; the other signals call back to the
+	 application through RL_CHECK_SIGNALS.
+	 If the application sets an event hook, call it for other signals.
 	 Otherwise (not EINTR), some error occurred, also signifying EOF. */
       if (errno != EINTR)
 	return (RL_ISSTATE (RL_STATE_READCMD) ? READERR : EOF);
       /* fatal signals of interest */
 #if defined (SIGHUP)
-      else if (_rl_caught_signal == SIGHUP || _rl_caught_signal == SIGTERM)
-#else
-      else if (_rl_caught_signal == SIGTERM)
-#endif
+      else if (_rl_caught_signal == SIGHUP)
 	return (RL_ISSTATE (RL_STATE_READCMD) ? READERR : EOF);
+#endif
+      else if (_rl_caught_signal == SIGTERM)
+        /* Allow the application to handle or exit instead of error/EOF */
+	RL_CHECK_SIGNALS ();
+
       /* keyboard-generated signals of interest */
 #if defined (SIGQUIT)
       else if (_rl_caught_signal == SIGINT || _rl_caught_signal == SIGQUIT)

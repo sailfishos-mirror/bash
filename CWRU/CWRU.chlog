@@ -13430,3 +13430,38 @@ error.c
 	  the `exec' builtin, since the `execfail' shopt is supposed to
 	  inhibit this.
 	  Report from Zev Weiss <zev@bewilderbeest.net>
+
+				   10/5
+				   ----
+parse.y
+	- xparse_dolparen: turn off echo_input_at_read so we don't echo lines
+	  a second time
+	- shell_getc: if echo_input_at_read is on, echo input lines even if
+	  shell_eof_token is `)' or `}'; rely on the callers to make sure it's
+	  off if not wanted (e.g., by xparse_dolparen)
+	  From https://savannah.gnu.org/bugs/?68735
+
+				   10/13
+				   -----
+lib/readline/input.c
+	- rl_getc: handle receipt of SIGTERM while waiting for input like a
+	  SIGINT (call RL_CHECK_SIGNALS()) instead of SIGHUP. Might need to
+	  explicitly return error/EOF if the application's signal handler is
+	  SIG_IGN for backwards compatibility.
+	  From a report by Denys Vlasenko <dvlasenk@redhat.com>
+
+				   10/14
+				   -----
+stringlib.c,externs.h
+	- strip_trailing: LEN argument is now size_t to avoid integer overflow
+	  on command substitution strings longer than 2GB
+	  Report from Lilian CRIMET <lilian.crimet@gmail.com>
+
+				   10/22
+				   -----
+trap.c
+	- run_pending_traps, _run_trap_internal: make sure to set breaking
+	  and continuing to 0 before running the trap action, then restore
+	  them after the action completes. Make sure to handle the case where
+	  the trap action runs break or continue.
+	  From a report by Dimitrios Christou <dimitrios.christou@skillonnet.com>

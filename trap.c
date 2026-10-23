@@ -332,6 +332,7 @@ run_pending_traps (void)
   register int sig;
   int x;
   volatile int old_exit_value, old_running, old_context;
+  volatile int old_breaking, old_continuing;
   WORD_LIST *save_subst_varlist;
   HASH_TABLE *save_tempenv;
   sh_parser_state_t pstate;
@@ -485,6 +486,10 @@ run_pending_traps (void)
 	      pending_traps[sig] = 0;
 	      evalnest++;
 
+	      old_breaking = breaking;
+	      old_continuing = continuing;
+	      breaking = continuing = 0;
+
 	      function_code = 0;
 	      save_return_catch_flag = return_catch_flag;
 	      if (return_catch_flag)
@@ -506,6 +511,12 @@ run_pending_traps (void)
 		  parse_and_execute_cleanup (sig + 1);	/* XXX - could use -1 */
 		  x = return_catch_value;
 		}
+
+	      /* what if the trap command runs `break' or `continue'? */
+	      if (breaking == 0 || old_breaking != 0)
+		breaking = old_breaking;
+	      if (continuing == 0 || old_continuing != 0)
+		continuing = old_continuing;
 
 	      evalnest--;
 #if defined (JOB_CONTROL)
@@ -1074,6 +1085,7 @@ run_exit_trap (void)
 	  pflags = interactive_shell ? SEVAL_NOTIFY : 0;
 	  pflags |= SEVAL_NONINT|SEVAL_NOHIST|SEVAL_RESETLINE|SEVAL_NOOPTIMIZE;
 	  reset_parser ();
+	  breaking = continuing = 0;
 	  parse_and_execute (trap_command, "exit trap", pflags);
 	}
       else if (code == ERREXIT)
@@ -1133,7 +1145,9 @@ _run_trap_internal (int sig, char *tag)
   char *old_trapsig;
   int trap_exit_value;
   volatile int save_return_catch_flag, function_code;
-  int old_modes, old_running, old_int, old_context;
+  volatile int old_running, old_int, old_context;
+  volatile int old_breaking, old_continuing;
+  int old_modes;
   int flags;
   procenv_t save_return_catch;
   WORD_LIST *save_subst_varlist;
@@ -1204,6 +1218,10 @@ _run_trap_internal (int sig, char *tag)
       /* XXX - set pending_traps[sig] = 0 here? */
       evalnest++;
 
+      old_breaking = breaking;
+      old_continuing = continuing;
+      breaking = continuing = 0;
+
       /* If we're in a function, make sure return longjmps come here, too. */
       function_code = 0;
       save_return_catch_flag = return_catch_flag;
@@ -1225,6 +1243,13 @@ _run_trap_internal (int sig, char *tag)
         }
       else
         trap_exit_value = return_catch_value;
+
+      /* what if the trap command runs `break' or `continue'? */
+      if (breaking == 0 || old_breaking != 0)
+	breaking = old_breaking;
+      if (continuing == 0 || old_continuing != 0)
+	continuing = old_continuing;
+
       evalnest--;
 
 #if defined (JOB_CONTROL)

@@ -453,7 +453,7 @@ inputunit:	simple_list simple_list_terminator
 	|	funsub
 			{
 			  /* This is special; look at the production and how
-			     parse_comsub/parse_valsub sets token_to_read */
+			     parse_comsub sets token_to_read */
 			  global_command = $1;
 			  YYACCEPT;
 			}
@@ -2713,15 +2713,18 @@ shell_getc (int remove_quoted_newline)
       if (shell_input_line)
 	{
 	  /* Lines that signify the end of the shell's input should not be
-	     echoed.  We should not echo lines while parsing command
-	     substitutions with recursive calls into the parsing engine; those
-	     should only be echoed once when we read the word.  That is the
-	     reason for the test against shell_eof_token, which is set to a
-	     right paren when parsing the contents of command substitutions. */
+	     echoed. We should echo lines while parsing command and process
+	     substitutions only once: the first time parse_comsub() is called.
+	     Further calls via xparse_dolparen or during parse_and_execute
+	     should not result in echoing input; we rely on the callers to
+	     set echo_input_at_read appropriately. That is the reason for the
+	     test against shell_eof_token, which is probably more elaborate
+	     than is really necessary. */
 	  if (echo_input_at_read && (shell_input_line[0] ||
 				       (shell_input_line_terminator != EOF &&
 				        shell_input_line_terminator != READERR)) &&
-				     shell_eof_token == 0)
+/*(*/				       (shell_eof_token == 0 ||
+					((parser_state & PST_EOFTOKEN) && shell_eof_token == ')' || shell_eof_token == '}')))
 	    fprintf (stderr, "%s\n", shell_input_line);
 	}
       else
@@ -4766,6 +4769,10 @@ xparse_dolparen (const char *base, char *string, size_t *indp, int flags)
   local_extglob = extended_glob;
 #endif
 
+  /* We also choose not to echo input at this stage; if verbose is on, the
+     first call to parse_comsub should echo the input lines. */
+  echo_input_at_read = 0;
+
   if (funsub && FUNSUB_CHAR (*string) && (*string == '|' || *string == ';'))
     string++;
 
@@ -4787,6 +4794,7 @@ xparse_dolparen (const char *base, char *string, size_t *indp, int flags)
 #if defined (EXTENDED_GLOB)
   extended_glob = local_extglob;
 #endif
+  echo_input_at_read = verbose_flag;
   token_to_read = 0;
 
   simplecmd_lineno = save_lineno;

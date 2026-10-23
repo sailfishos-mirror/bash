@@ -4394,7 +4394,7 @@ exec [-cl] [-a @var{name}] [@var{command} [@var{arguments}]]
 If @var{command}
 is supplied, it replaces the shell without creating a new process.
 @var{command} cannot be a shell builtin or function.
-The @var{arguments} become the arguments to @var{command}
+The @var{arguments} become the arguments to @var{command}.
 If the @option{-l} option is supplied, the shell places a dash at the
 beginning of the zeroth argument passed to @var{command}.
 This is what the @code{login} program does.
@@ -9202,7 +9202,6 @@ Readline,
 and is ignored and removed otherwise,
 so it shouldn't be used in @env{PS0} or @env{PS4},
 or when line editing is not enabled.
-
 @item \]
 End a sequence of non-printing characters begun with @samp{\[}
 @end table
