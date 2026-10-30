@@ -572,6 +572,8 @@ extern ssize_t zreadn (int, char *, size_t);
 extern int zungetc (int);
 extern void zreset (void);
 extern void zsyncfd (int);
+extern int zcheckfd (int);
+extern void zpurge (int);
 
 /* declarations for functions defined in lib/sh/zwrite.c */
 extern int zwrite (int, char *, size_t);

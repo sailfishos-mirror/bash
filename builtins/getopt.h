@@ -68,6 +68,7 @@ typedef struct sh_getopt_state
   int gs_curopt;
   char *gs_nextchar;
   int gs_charindex;
+  int gs_vcontext;
   int gs_flags;
 } sh_getopt_state_t;
 

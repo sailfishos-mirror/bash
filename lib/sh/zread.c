@@ -200,6 +200,7 @@ zreadintr (int fd, char *buf, size_t len)
 
 static char lbuf[ZBUFSIZ];
 static size_t lind, lused;
+static int zfileno = -1;	/* fd associated with latest read into lbuf */
 
 ssize_t
 zreadc (int fd, char *cp)
@@ -223,6 +224,7 @@ zreadc (int fd, char *cp)
 	  return nr;
 	}
       lused = nr;
+      zfileno = fd;
     }
   if (cp)
     *cp = lbuf[lind++];
@@ -253,6 +255,7 @@ zreadcintr (int fd, char *cp)
 	  return nr;
 	}
       lused = nr;
+      zfileno = fd;
     }
   if (cp)
     *cp = lbuf[lind++];
@@ -285,6 +288,7 @@ zreadn (int fd, char *cp, size_t len)
 	  return nr;
 	}
       lused = nr;
+      zfileno = fd;
     }
   if (cp)
     *cp = lbuf[lind++];
@@ -331,8 +335,23 @@ zsyncfd (int fd)
     r = lseek (fd, -off, SEEK_CUR);
 
   if (r != -1)
-    {
-      lused = lind = 0;
-      zpushind = zpopind = 0;
-    }
+    zreset ();
+}
+
+/* Return true if FD is the same as ZFILENO, the file descriptor associated
+   with the most recent call to one of the read functions above that populates
+   LBUF */
+int
+zcheckfd (int fd)
+{
+  return (zfileno >= 0 && fd == zfileno);
+}
+
+/* Throw away buffered data associated with FD. The caller should have already
+   made sure that FD == ZFILENO by calling zcheckfd() */
+void
+zpurge (int fd)
+{
+  zreset ();
+  zfileno = -1;
 }

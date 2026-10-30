@@ -1,4 +1,4 @@
-/* getopt.c - getopt for Bash.  Used by the getopt builtin. */
+/* getopt.c - getopt for Bash.  Used by the getopts builtin. */
 
 /* Copyright (C) 1993-2009,2022,2026 Free Software Foundation, Inc.
 
@@ -252,6 +252,7 @@ sh_getopt_save_istate (void)
   ret->gs_curopt = sh_curopt;
   ret->gs_nextchar = nextchar;		/* XXX */
   ret->gs_charindex = sh_charindex;
+  ret->gs_vcontext = variable_context;	/* informational only */
   ret->gs_flags = 0;			/* XXX for later use */
 
   return ret;

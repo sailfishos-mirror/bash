@@ -147,7 +147,7 @@ rl_tty_status (int count, int key)
 char *
 rl_copy_text (int from, int to)
 {
-  register int length;
+  size_t length;
   char *copy;
 
   /* Fix it if the caller is confused. */
@@ -180,9 +180,9 @@ rl_extend_line_buffer (int len)
 int
 rl_tilde_expand (int ignore, int key)
 {
-  register int start, end;
+  int start, end;
   char *homedir, *temp;
-  int len;
+  size_t len;
 
   end = rl_point;
   start = end - 1;

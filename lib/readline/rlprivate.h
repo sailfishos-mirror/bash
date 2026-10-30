@@ -1,7 +1,7 @@
 /* rlprivate.h -- functions and variables global to the readline library,
 		  but not intended for use by applications. */
 
-/* Copyright (C) 1999-2025 Free Software Foundation, Inc.
+/* Copyright (C) 1999-2026 Free Software Foundation, Inc.
 
    This file is part of the GNU Readline Library (Readline), a library
    for reading lines of text with interactive input and history editing.
@@ -75,8 +75,8 @@ typedef struct  __rl_search_context
   int sflags;
 
   char *search_string;
-  int search_string_index;
-  int search_string_size;
+  size_t search_string_index;
+  size_t search_string_size;
 
   char **lines;
   char *allocated_line;

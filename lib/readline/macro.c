@@ -1,6 +1,6 @@
 /* macro.c -- keyboard macros for readline. */
 
-/* Copyright (C) 1994-2009,2017 Free Software Foundation, Inc.
+/* Copyright (C) 1994-2009,2017,2026 Free Software Foundation, Inc.
 
    This file is part of the GNU Readline Library (Readline), a library
    for reading lines of text with interactive input and history editing.      
@@ -62,7 +62,7 @@
 char *rl_executing_macro = (char *)NULL;
 
 /* The offset in the above string to the next character to be read. */
-static int executing_macro_index;
+static size_t executing_macro_index;
 
 /* The current macro string being built.  Characters get stuffed
    in here by add_macro_char (). */
@@ -72,7 +72,7 @@ static char *current_macro = (char *)NULL;
 static size_t current_macro_size;
 
 /* The index at which characters are being added to current_macro. */
-static int current_macro_index;
+static size_t current_macro_index;
 
 /* A structure used to save nested macro strings.
    It is a linked list of string/index for each saved macro. */

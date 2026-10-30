@@ -717,7 +717,7 @@ _rl_insert_char (int count, int c)
   register int i;
   char *string;
 #ifdef HANDLE_MULTIBYTE
-  int string_size;
+  size_t string_size;
   char incoming[MB_LEN_MAX + 1];
   int incoming_length = 0;
   mbstate_t ps_back;

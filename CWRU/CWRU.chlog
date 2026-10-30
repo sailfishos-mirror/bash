@@ -13465,3 +13465,62 @@ trap.c
 	  them after the action completes. Make sure to handle the case where
 	  the trap action runs break or continue.
 	  From a report by Dimitrios Christou <dimitrios.christou@skillonnet.com>
+
+				   10/23
+				   -----
+lib/readline/display.c
+	- rl_redisplay: update fix from 5/19 to use _rl_last_c_pos in a single
+	  byte locale and local_prompt_len otherwise
+	  From https://bugs.gentoo.org/984299 via Kerin Millar <kfm@plushkava.net>
+
+				   10/24
+				   -----
+jobs.c
+	- kill_pid: if we are killing a process or job in a situation where
+	  we can't use killpg(), make sure to set p to p->next even if we
+	  skip over a job because we think it's already terminated so we go
+	  through all of the processes in the job's pipeline
+	  Report and fix from Edgar MAGDELAINE <edgarmagdelaine@hotmail.fr>
+
+				   10/27
+				   -----
+lib/sh/zread.c
+	- zfileno: keep track of the file descriptor most recently used for
+	  local buffering in zreadc/zreadcintr/zreadn (everything that uses
+	  lbuf/lused/lind)
+	- zcheckfd: new function, return true if the file descriptor passed as
+	  an argument is the same as zfileno and with presumably buffered
+	  data
+	- zreset: new function, break code that resets lused/lind/etc into
+	  separate function, change callers
+	- zpurge: new function, reset any buffered or pushed input and unset
+	  zfileno
+
+externs.h
+	- zcheckfd, zpurge: new extern declarations
+
+lib/readline/histexpand.c
+	- postproc_subst_rhs: use size_t for i, j, new_size
+	  Report from Osvaldo J. Filho <janeri@gmail.com>
+
+lib/readline/bind.c,
+lib/readline/complete.c
+lib/readline/display.c,
+lib/readline/histexpand.c,
+lib/readline/isearch.c,
+lib/readline/kill.c,
+lib/readline/macro.c,
+lib/readline/util.c,
+lib/readline/rlprivate.h
+	- make sure places and variables that maintain buffer or struct sizes
+	  or count struct or buffer elements are size_t
+
+				   10/30
+				   -----
+redir.c
+	- do_redirection_internal: in contexts where a file descriptor that
+	  was the target of a redirection will be closed, check whether
+	  that file descriptor was the last one used to read buffered input
+	  with zreadc/zreadcintr/zreadn and invalidate the buffered data
+	  if so
+	  Report from Edgar MAGDELAINE <edgarmagdelaine@hotmail.fr>

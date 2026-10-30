@@ -1,6 +1,6 @@
 /* kill.c -- kill ring management. */
 
-/* Copyright (C) 1994-2025 Free Software Foundation, Inc.
+/* Copyright (C) 1994-2026 Free Software Foundation, Inc.
 
    This file is part of the GNU Readline Library (Readline), a library
    for reading lines of text with interactive input and history editing.      
@@ -91,7 +91,7 @@ static int
 _rl_copy_to_kill_ring (char *text, int append)
 {
   char *old, *new;
-  int slot;
+  size_t slot;
 
   /* First, find the slot to work with. */
   if (_rl_last_command_was_kill == 0 || rl_kill_ring == 0)
@@ -111,7 +111,7 @@ _rl_copy_to_kill_ring (char *text, int append)
 	  slot = rl_kill_ring_length;
 	  if (slot == rl_max_kills)
 	    {
-	      register int i;
+	      int i;
 	      xfree (rl_kill_ring[0]);
 	      for (i = 0; i < slot; i++)
 		rl_kill_ring[i] = rl_kill_ring[i + 1];

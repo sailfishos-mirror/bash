@@ -3999,11 +3999,14 @@ kill_pid (pid_t pid, int sig, int group)
 	      p = jobs[job]->pipe;
 	      do
 		{
-		  if (PALIVE (p) == 0)
-		    continue;		/* avoid pid recycling problem */
-		  kill (p->pid, sig);
-		  if (PEXITED (p) && (sig == SIGTERM || sig == SIGHUP))
-		    kill (p->pid, SIGCONT);
+		  /* Don't bother killing processes we think have already
+		     terminated, in case the pid has already been reused. */
+		  if (PALIVE (p))
+		    {
+		      kill (p->pid, sig);
+		      if (PEXITED (p) && (sig == SIGTERM || sig == SIGHUP))
+			kill (p->pid, SIGCONT);
+		    }
 		  p = p->next;
 		}
 	      while  (p != jobs[job]->pipe);

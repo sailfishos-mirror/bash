@@ -1051,6 +1051,10 @@ do_redirection_internal (REDIRECT *redirect, int flags, char **fnp)
 	  if (ri == r_input_direction || ri == r_input_output)
 	    duplicate_buffered_stream (fd, redirector);
 
+	  if (ri == r_input_direction || ri == r_input_output)
+	    if (zcheckfd (redirector))
+	      zpurge (redirector);
+
 	  /*
 	   * If we're remembering, then this is the result of a while, for
 	   * or until loop with a loop redirection, or a function/builtin
@@ -1221,6 +1225,10 @@ do_redirection_internal (REDIRECT *redirect, int flags, char **fnp)
 	  if (ri == r_duplicating_input || ri == r_move_input)
 	    duplicate_buffered_stream (redir_fd, redirector);
 
+	  if (ri == r_duplicating_input || ri == r_move_input)
+	    if (zcheckfd (redirector))
+	      zpurge (redirector);
+
 	  /* First duplicate the close-on-exec state of redirectee.  dup2
 	     leaves the flag unset on the new descriptor, which means it
 	     stays open.  Only set the close-on-exec bit for file descriptors
@@ -1257,6 +1265,8 @@ do_redirection_internal (REDIRECT *redirect, int flags, char **fnp)
 #if defined (COPROCESS_SUPPORT)
 	      coproc_fdchk (redir_fd);	/* XXX - loses coproc fds */
 #endif
+	      if (zcheckfd (redir_fd))
+		zpurge (redir_fd);
 	    }
 	}
       break;
@@ -1290,6 +1300,9 @@ do_redirection_internal (REDIRECT *redirect, int flags, char **fnp)
 	  if ((redirector != 0 || (subshell_environment & SUBSHELL_ASYNC) == 0) && (flags & RX_UNDOABLE))
 	    check_bash_input (redirector);
 	  r = close_buffered_fd (redirector);
+
+	  if (zcheckfd (redirector))
+	    zpurge (redirector);
 
 	  if (r < 0 && (rflags & RX_INTERNAL) && (errno == EIO || errno == ENOSPC))
 	    REDIRECTION_ERROR (r, errno, -1);

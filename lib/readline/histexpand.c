@@ -1,6 +1,6 @@
 /* histexpand.c -- history expansion. */
 
-/* Copyright (C) 1989-2021,2023-2025 Free Software Foundation, Inc.
+/* Copyright (C) 1989-2021,2023-2026 Free Software Foundation, Inc.
 
    This file contains the GNU History Library (History), a set of
    routines for managing the text of previously typed lines.
@@ -337,7 +337,7 @@ quote_breaks (char *s)
 {
   register char *p, *r;
   char *ret;
-  int len = 3;
+  size_t len = 3;
 
   for (p = s; p && *p; p++, len++)
     {
@@ -378,7 +378,7 @@ hist_error(const char *s, int start, int current, int errtype)
 {
   char *temp;
   const char *emsg;
-  int ll, elen;
+  size_t ll, elen;
 
   ll = current - start;
 
@@ -436,7 +436,7 @@ hist_error(const char *s, int start, int current, int errtype)
 static char *
 get_subst_pattern (const char *str, int *iptr, int delimiter, int is_rhs, int *lenptr)
 {
-  register int si, i, j, k;
+  size_t si, i, j, k;
   char *s;
 #if defined (HANDLE_MULTIBYTE)
   mbstate_t ps;
@@ -492,7 +492,7 @@ static void
 postproc_subst_rhs (void)
 {
   char *new;
-  int i, j, new_size;
+  size_t i, j, new_size;
 
   new = (char *)xmalloc (new_size = subst_rhs_len + subst_lhs_len);
   for (i = j = 0; i < subst_rhs_len; i++)
@@ -529,10 +529,10 @@ postproc_subst_rhs (void)
 static int
 history_expand_internal (const char *string, int start, int qc, int *end_index_ptr, char **ret_string, char *current_line)
 {
-  int i, n, starting_index;
+  int i, starting_index;
   int substitute_globally, subst_bywords, want_quotes, print_only;
   char *event, *temp, *result, *tstr, *t, c, *word_spec;
-  size_t result_len;
+  size_t n, result_len;
 #if defined (HANDLE_MULTIBYTE)
   mbstate_t ps;
 
@@ -783,7 +783,7 @@ history_expand_internal (const char *string, int start, int qc, int *end_index_p
 
 		if (STREQN (temp+si, subst_lhs, subst_lhs_len))
 		  {
-		    int len = subst_rhs_len - subst_lhs_len + l_temp;
+		    size_t len = subst_rhs_len - subst_lhs_len + l_temp;
 		    new_event = (char *)xmalloc (1 + len);
 		    strncpy (new_event, temp, si);
 		    strncpy (new_event + si, subst_rhs, subst_rhs_len);
@@ -1170,7 +1170,8 @@ history_expand (const char *hstring, char **output)
 	      }
 	    else if (dquote == 0 && history_quotes_inhibit_expansion)
 	      {
-		int quote, slen;
+		int quote;
+		size_t slen;
 
 		flag = (i > 0 && string[i - 1] == '$');
 		quote = i++;
@@ -1620,8 +1621,8 @@ get_word:
 static char *
 history_substring (const char *string, int start, int end)
 {
-  register int len;
-  register char *result;
+  size_t len;
+  char *result;
 
   len = end - start;
   result = (char *)xmalloc (len + 1);

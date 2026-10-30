@@ -1,6 +1,6 @@
 /* bind.c -- key binding and startup file support for the readline library. */
 
-/* Copyright (C) 1987-2024 Free Software Foundation, Inc.
+/* Copyright (C) 1987-2026 Free Software Foundation, Inc.
 
    This file is part of the GNU Readline Library (Readline), a library
    for reading lines of text with interactive input and history editing.
@@ -1231,7 +1231,7 @@ const char *rl_readline_name = "other";
 
 /* Stack of previous values of parsing_conditionalized_out. */
 static unsigned char *if_stack = (unsigned char *)NULL;
-static int if_stack_depth;
+static size_t if_stack_depth;
 static size_t if_stack_size;
 
 /* Push _rl_parsing_conditionalized_out, and set parser state based
@@ -1444,7 +1444,7 @@ parser_if (char *args)
 static int
 parser_else (char *args)
 {
-  register int i;
+  size_t i;
 
   if (if_stack_depth == 0)
     {
@@ -2463,7 +2463,8 @@ rl_get_keymap_name (Keymap map)
 int
 rl_set_keymap_name (const char *name, Keymap map)
 {
-  int i, ni, mi;
+  int ni, mi;
+  size_t i;
 
   /* First check whether or not we're trying to rename a builtin keymap */
   mi = _rl_get_keymap_by_map (map);

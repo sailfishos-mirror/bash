@@ -1,6 +1,6 @@
 /* complete.c -- filename completion for readline. */
 
-/* Copyright (C) 1987-2025 Free Software Foundation, Inc.
+/* Copyright (C) 1987-2026 Free Software Foundation, Inc.
 
    This file is part of the GNU Readline Library (Readline), a library
    for reading lines of text with interactive input and history editing.
@@ -1006,7 +1006,8 @@ fnprint (const char *to_print, int prefix_bytes, const char *real_pathname)
 static int
 print_filename (char *to_print, char *full_pathname, int prefix_bytes)
 {
-  int printed_len, extension_char, slen, tlen;
+  int printed_len, extension_char;
+  size_t slen, tlen;
   char *s, c, *new_full_pathname, *dn;
 
   extension_char = 0;
@@ -1329,7 +1330,8 @@ static char **
 remove_duplicate_matches (char **matches)
 {
   char *lowest_common;
-  int i, j, newlen;
+  int i, j;
+  size_t newlen;
   char dead_slot;
   char **temp_array;
 
@@ -1473,7 +1475,7 @@ compute_lcd_of_matches (char **match_list, int matches, const char *text)
     }
   else
     {
-      match_list[0] = (char *)xmalloc (low + 1);
+      match_list[0] = (char *)xmalloc ((size_t)low + 1);
 
       /* XXX - this might need changes in the presence of multibyte chars */
 

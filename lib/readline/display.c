@@ -225,7 +225,7 @@ static int last_lmargin;
 
 /* A buffer for `modeline' messages. */
 static char *msg_buf = 0;
-static int msg_bufsiz = 0;
+static size_t msg_bufsiz = 0;
 
 /* Non-zero forces the redisplay even if we thought it was unnecessary. */
 static int forced_display;
@@ -357,7 +357,8 @@ expand_prompt (char *pmt, int flags, int *lp, int *lip, int *niflp, int *vlp)
 {
   char *r, *ret, *p, *igstart, *nprompt, *ms;
   int l, rl, last, ignoring, ninvis, invfl, invflset, ind, pind, physchars;
-  int mlen, newlines, newlines_guess, bound, can_add_invis, lastinvis;
+  int mlen, newlines, bound, can_add_invis, lastinvis;
+  size_t newlines_guess;
   int mb_cur_max;
 
   /* We only expand the mode string for the last line of a multiline prompt
@@ -365,8 +366,10 @@ expand_prompt (char *pmt, int flags, int *lp, int *lip, int *niflp, int *vlp)
   ms = (((pmt == rl_prompt) ^ (flags & PMT_MULTILINE)) && _rl_show_mode_in_prompt) ? prompt_modestr (&mlen) : 0;
   if (ms)
     {
-      l = strlen (pmt);
-      nprompt = (char *)xmalloc (l + mlen + 1);
+      size_t newlen;
+
+      newlen = strlen (pmt) + mlen + 1;
+      nprompt = (char *)xmalloc (newlen);
       memcpy (nprompt, ms, mlen);
       strcpy (nprompt + mlen, pmt);
     }
@@ -1510,9 +1513,11 @@ rl_redisplay (void)
 	      /* cursor_bufpos is where the portion of the prompt that appears
 	         on the current screen line begins in the buffer. It is a
 	         buffer position, an index into curline
-	         (local_prompt + pmt_offset) */
-	      cursor_bufpos = pmt_offset + local_prompt_len;
-
+	         (local_prompt + pmt_offset in multibyte mode, single-byte
+	         locales use _rl_last_c_pos) */
+	      cursor_bufpos = pmt_offset +
+				(mb_cur_max == 1 || rl_byte_oriented) ? _rl_last_c_pos : local_prompt_len;
+	      
 	      if (local_prompt && local_prompt_invis_chars[cursor_linenum] &&
 		    _rl_last_c_pos > 0 &&
 		    cursor_bufpos <= prompt_last_invisible)
@@ -3265,7 +3270,7 @@ rl_restore_prompt (void)
 char *
 _rl_make_prompt_for_search (int pchar)
 {
-  int len;
+  size_t len;
   char *pmt, *p;
 
   rl_save_prompt ();
